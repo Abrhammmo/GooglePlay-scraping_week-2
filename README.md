@@ -73,35 +73,6 @@ The `ReviewPreprocessor` class performs the following steps:
 * **Per-bank summaries**: Generate descriptive statistics and plots by `bank_code`.
 * **Visualizations**: Create bar charts, rating distributions, and other exploratory charts for insights.
 
----
-
-## How to Run
-
-1. **Scraping**:
-
-   ```bash
-   python scraping/scrape_reviews.py
-   ```
-
-   This generates `data/raw/raw_reviews.csv`.
-
-2. **Preprocessing**:
-
-   ```bash
-   python preprocessing/preprocess_reviews.py
-   ```
-
-   Outputs cleaned CSV: `data/processed/cleaned_reviews.csv` and prints a detailed preprocessing report.
-
-3. **Analysis / Visualizations**:
-   Optional scripts can generate:
-
-   * Bar graphs of reviews per bank
-   * Ratings distribution per bank
-   * Text length histograms
-   * Sentiment analysis summaries
-
----
 
 ## Notes
 
