@@ -1,67 +1,110 @@
 
-# 🏦 Customer Experience Analytics for Ethiopian Fintech Apps
+# Ethiopian Mobile Banking App Reviews Analysis
 
-## 💡 Challenge Overview
+## Overview
 
-This project addresses a real-world data engineering and analysis challenge to assess customer satisfaction for three major Ethiopian mobile banking applications by scraping, processing, analyzing, and visualizing user reviews from the **Google Play Store**.
+This project scrapes user reviews from **three Ethiopian mobile banking apps** (BOA, CBE, Dashen Bank) and performs comprehensive preprocessing to prepare the data for analysis. The goal is to create a clean dataset suitable for sentiment analysis, visualization, and other downstream analytics.
 
-As a **Data Analyst** at **Omega Consultancy**, the objective is to provide data-driven insights and actionable recommendations to **Commercial Bank of Ethiopia (CBE)**, **Bank of Abyssinia (BOA)**, and **Dashen Bank** to help them enhance their mobile app user experience, improve retention, and foster feature innovation.
+---
 
------
+## Project Structure
 
-## 🎯 Business Objectives & Scenarios
+* **scraping/**: Contains the Python scripts for scraping reviews from Google Play Store.
+* **data/raw/raw_reviews.csv**: Raw scraped review data.
+* **data/processed/cleaned_reviews.csv**: Preprocessed and cleaned dataset ready for analysis.
+* **preprocessing/**: Contains the `ReviewPreprocessor` class and pipeline.
+* **visualizations/**: Folder for generated graphs and charts (optional).
+* **config.py**: Configuration file specifying paths and other constants.
 
-The analysis is guided by core fintech priorities, simulating real consulting tasks:
+---
 
-  * **Scenario 1: Retaining Users**
-      * **Objective:** Analyze the prevalence of critical pain points (e.g., slow transfers) across all banks and suggest areas for technical investigation.
-  * **Scenario 2: Enhancing Features**
-      * **Objective:** Extract desired features (e.g., fingerprint login, budgeting tools) and competitive gaps through thematic and keyword analysis.
-  * **Scenario 3: Managing Complaints**
-      * **Objective:** Cluster recurring complaints (e.g., “login error”) to inform strategies for AI chatbot integration and faster support resolution.
+## Goal 1: Scraping Reviews
 
------
+The scraping script collects:
 
-## 🛠️ Project Architecture & Methodology
+* **review_text**: Text content of the review
+* **rating**: Star rating (1-5)
+* **review_date**: Date of the review
+* **bank_name / bank_code**: Bank identifiers
+* **user_name**: Name of the reviewer
+* **thumbs_up**: Number of likes/upvotes
+* **reply_content**: Bank reply, if any
+* **source**: Source platform (Google Play)
 
-The project follows a standard data pipeline workflow: **Scraping** $\rightarrow$ **Preprocessing/NLP** $\rightarrow$ **Storage** $\rightarrow$ **Analysis/Reporting**.
+The script ensures that all data is aggregated into a **single raw CSV**.
 
-### ⚙️ Technologies Used
+---
 
-  * **Web Scraping:** Python (e.g., `google-play-scraper`)
-  * **Data Processing:** Python (`pandas`, `numpy`)
-  * **Natural Language Processing (NLP):**
-      * **Sentiment:** `distilbert-base-uncased-finetuned-sst-2-english` (or VADER/TextBlob fallback)
-      * **Thematic Analysis:** `spaCy`, `scikit-learn` (TF-IDF)
-  * **Database:** **PostgreSQL** (`psycopg2` or `SQLAlchemy`)
-  * **Visualization:** `Matplotlib`, `Seaborn`
-  * **Version Control:** **Git/GitHub**
+## Goal 2: Preprocessing
 
+The `ReviewPreprocessor` class performs the following steps:
 
-## 📝 Task-Specific Implementation & Status
+1. **Load raw data**: Reads the CSV file containing scraped reviews.
+2. **Check for missing data**: Identifies missing values in critical columns (`review_text`, `rating`, `bank_name`) and logs statistics.
+3. **Handle missing values**:
 
-### **Task 1: Data Collection and Preprocessing**
+   * Drops rows missing critical information.
+   * Fills `user_name` with `'Anonymous'`, `thumbs_up` with `0`, and `reply_content` with empty strings.
+4. **Normalize dates**: Converts `review_date` into `YYYY-MM-DD` format and extracts `review_year` and `review_month`.
+5. **Clean review text**:
 
-  * **Objective:** Collect $\text{1200+ reviews}$ ($\text{400+ per bank}$) and clean the data.
-  * **Implementation:** Used the `google-play-scraper` library. Handled duplicates and missing data, and normalized dates to `YYYY-MM-DD`.
-  * **Status:** **Complete**. Cleaned data is saved to `data/processed_reviews.csv`.
+   * Removes extra spaces and leading/trailing whitespace.
+   * Drops empty reviews.
+   * Computes `text_length` for analysis.
+6. **Validate ratings**: Ensures ratings are within the 1-5 range; invalid rows are removed.
+7. **Prepare final output**:
 
-### **Task 2: Sentiment and Thematic Analysis**
+   * Reorders columns: `review_id`, `review_text`, `rating`, `review_date`, `review_year`, `review_month`, `bank_code`, `bank_name`, `user_name`, `thumbs_up`, `text_length`, `source`.
+   * Sorts by `bank_code` and `review_date`.
+   * Resets the index for clean output.
+8. **Save processed data**: Writes cleaned data to CSV (`data/processed/cleaned_reviews.csv`).
+9. **Generate preprocessing report**:
 
-  * **Objective:** Quantify sentiment and extract $\text{3-5 actionable themes}$ per bank.
-  * **Implementation:** Sentiment scores calculated using a fine-tuned DistilBERT model. $\text{TF-IDF}$ and $\text{spaCy}$ used to extract keywords and cluster them into themes like 'Transaction Performance', 'User Interface', and 'Account Access'.
-  * **Status:** **Complete**. Sentiment scores and theme labels are integrated into the dataset.
+   * Summarizes number of records removed at each step.
+   * Shows distribution per bank, rating distribution, and text statistics.
+   * Computes data retention and error rates.
 
-### **Task 3: Store Cleaned Data in PostgreSQL**
+---
 
-  * **Objective:** Design and implement a relational database to store the processed data for persistent management.
-  * **Schema:** Two tables: **`banks`** (PK: `bank_id`) and **`reviews`** (PK: `review_id`, FK: `bank_id`).
-  * **Implementation:** A Python script using `psycopg2` handles the database creation and bulk insertion of over $\text{1,000}$ review records.
-  * **Status:** **Complete**. Database `bank_reviews` is populated and verified.
+## Goal 3: Additional Cleaning and Analysis (Optional)
 
-### **Task 4: Insights and Recommendations**
+* **Remove duplicate rows**: Ensures no repeated reviews remain.
+* **Filter non-English reviews**: Uses `langdetect` to keep only English reviews.
+* **Per-bank summaries**: Generate descriptive statistics and plots by `bank_code`.
+* **Visualizations**: Create bar charts, rating distributions, and other exploratory charts for insights.
 
-  * **Objective:** Derive actionable insights, compare banks, and deliver $\text{2+}$ improvements per bank.
-  * **Implementation:** Analysis focuses on linking low ratings/negative sentiment to specific themes/keywords to identify pain points (e.g., crashes) and drivers (e.g., good UI). $\text{3-5 core visualizations}$ generated.
-  * **Status:** **Pending Final Report Generation**. Analysis and visualizations are ready for inclusion in the final report (`final_report.pdf`).
+---
 
+## How to Run
+
+1. **Scraping**:
+
+   ```bash
+   python scraping/scrape_reviews.py
+   ```
+
+   This generates `data/raw/raw_reviews.csv`.
+
+2. **Preprocessing**:
+
+   ```bash
+   python preprocessing/preprocess_reviews.py
+   ```
+
+   Outputs cleaned CSV: `data/processed/cleaned_reviews.csv` and prints a detailed preprocessing report.
+
+3. **Analysis / Visualizations**:
+   Optional scripts can generate:
+
+   * Bar graphs of reviews per bank
+   * Ratings distribution per bank
+   * Text length histograms
+   * Sentiment analysis summaries
+
+---
+
+## Notes
+
+* All steps are **modular**: new preprocessing steps or filters can be added easily.
+* The preprocessing pipeline is **robust** against missing or malformed data.
+* This dataset is now ready for **machine learning**, **text analysis**, or **dashboard visualizations**.
