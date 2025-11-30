@@ -79,3 +79,52 @@ The `ReviewPreprocessor` class performs the following steps:
 * All steps are **modular**: new preprocessing steps or filters can be added easily.
 * The preprocessing pipeline is **robust** against missing or malformed data.
 * This dataset is now ready for **machine learning**, **text analysis**, or **dashboard visualizations**.
+
+## Task 2 – Thematic Analysis of Bank Reviews
+
+This task focuses on analyzing user reviews for multiple banks to identify recurring themes, extract insights, and provide actionable recommendations for improving user experience.
+
+
+Steps Performed
+
+* Data Preprocessing
+
+Cleaned, normalized, and tokenized review text.
+
+Removed noise such as special characters, stopwords, and irrelevant content to ensure high-quality input for analysis.
+
+* Theme Clustering
+
+Applied TF-IDF vectorization to convert reviews into numerical features.
+
+Used KMeans clustering to group reviews into 5 meaningful themes for each bank.
+
+* Keyword Extraction
+
+Identified the top keywords for each theme to summarize the main topics discussed by users.
+
+* Visualization
+
+Created plots showing keywords per theme for each bank, enabling quick interpretation of user feedback.
+
+* Cross-Bank Comparison
+
+Compared themes across banks to identify common strengths, weaknesses, and areas for improvement.
+
+* Actionable Insights
+
+Highlighted recurring complaints, such as transaction issues and login errors.
+
+Identified praised features, including smooth UI and fast processing times.
+
+* Scalability
+
+The pipeline can handle incoming review data, automatically categorizing new reviews and updating visualizations.
+
+* Output
+
+CSV files containing keywords, theme clusters, and review counts.
+
+Visualizations for each bank showing key themes and associated keywords.
+
+Comparative insights across banks to guide strategic improvements in user experience.
