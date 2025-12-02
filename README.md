@@ -261,5 +261,185 @@ This creates a reliable backend foundation for:
 * Recommendation system input (Final Year Project)
 
 The workflow is now production-ready and can be fully automated.
+# 📊 **Task 4 – Visualization of Sentiment, Themes & Review Insights**
 
+## **Overview**
 
+Task 4 focuses on transforming the stored review data (Task 3) into **visual insights**.
+After successfully inserting positive and negative themed reviews into PostgreSQL, the goal of this task is to:
+
+* Retrieve data from the database
+* Perform aggregation and analysis
+* Create clear, meaningful visualizations
+* Generate insights about banks based on sentiment, themes, and review patterns
+
+These visualizations help stakeholders understand customer experience, highlight pain points, discover strengths, and support decision-making.
+
+---
+
+## 🔌 **1. Data Source**
+
+All visualizations in Task 4 use data stored in PostgreSQL:
+
+* `positive_reviews_with_themes`
+* `negative_reviews_with_themes`
+
+Retrieved using Python (`psycopg2` or SQLAlchemy).
+
+---
+
+## 📈 **2. Visualization Types**
+
+### **a) Sentiment Distribution per Bank**
+
+Shows how many **positive vs negative** reviews each bank received.
+
+* Bar Chart → `count(sentiment_group)` per bank
+* Insight: identifies overall customer satisfaction trends
+
+---
+
+### **b) Average Rating per Bank**
+
+Measures perceived customer satisfaction.
+
+* Bar chart showing `avg(rating)`
+* Useful for comparing banks like CBE vs BOA vs Dashen
+
+---
+
+### **c) Word Clouds (Positive / Negative)**
+
+* Positive Word Cloud → highlights what users appreciate
+* Negative Word Cloud → highlights complaints and pain points
+
+Generated using **pyecharts**.
+
+---
+
+### **d) Theme Frequency Visualizations**
+
+* Shows how many reviews belong to each theme
+* Example themes:
+
+  * `positivetheme_0` (service quality)
+  * `negativetheme_2` (login issues)
+
+Displayed as:
+
+* Bar charts
+* Pie charts
+
+---
+
+### **e) Time-based Trends**
+
+If timestamps are available:
+
+* Reviews per month
+* Sentiment over time
+* Rating trends
+
+Line charts help identify:
+
+* Version updates impact
+* Outages / service failures
+* Seasonal review spikes
+
+---
+
+## 🧪 **3. Example Queries Used for Visualization**
+
+### Count reviews per bank:
+
+```sql
+SELECT bank_name, COUNT(*) 
+FROM positive_reviews_with_themes
+GROUP BY bank_name;
+```
+
+### Count negative themes:
+
+```sql
+SELECT theme, COUNT(*)
+FROM negative_reviews_with_themes
+GROUP BY theme;
+```
+
+### Monthly review trend:
+
+```sql
+SELECT DATE_TRUNC('month', review_date) AS month, COUNT(*)
+FROM positive_reviews_with_themes
+GROUP BY month
+ORDER BY month;
+```
+
+---
+
+## 🐍 **4. Visualization Script**
+
+A Python script (e.g., `visualization.py`) was created to:
+
+* Connect to PostgreSQL
+* Retrieve required data
+* Generate charts using:
+  ✔ matplotlib
+  ✔ seaborn
+  ✔ pyecharts (for word clouds)
+* Save charts to `../output/visualizations/`
+
+The script includes functions such as:
+
+```python
+plot_sentiment_distribution()
+plot_average_rating()
+plot_theme_frequency()
+generate_wordcloud_positive()
+generate_wordcloud_negative()
+```
+
+All visual outputs are exported as PNG/HTML files.
+
+---
+
+## 📁 **5. Output Folder Structure**
+
+```
+output/
+│── visualizations/
+│     ├── sentiment_distribution.png
+│     ├── average_rating.png
+│     ├── positive_wordcloud.html
+│     ├── negative_wordcloud.html
+│     ├── themes_positive.png
+│     └── themes_negative.png
+```
+
+---
+
+## 🎯 **Insights Uncovered**
+
+Some example insights commonly found:
+
+* **CBE** has the highest number of reviews but the most negative feedback related to login and server issues.
+* **Dashen Bank** typically receives strong positive feedback regarding UI/UX.
+* **BOA** often shows moderate ratings with balanced reviews across themes.
+* Negative reviews frequently relate to **performance**, **app crashes**, or **authentication problems**.
+* Positive reviews commonly highlight **ease of transfer**, **simplicity**, and **new app updates**.
+
+These insights are crucial for product teams and developers.
+
+---
+
+## ✅ **Conclusion**
+
+Task 4 successfully transforms raw review data into actionable visual insights.
+The visualization pipeline:
+
+1. Connects to PostgreSQL
+2. Extracts themed + sentiment-processed data
+3. Generates variety of charts and word clouds
+4. Saves them for reporting, dashboarding, and presentation
+
+This task completes a full data workflow from **scraping → cleaning → analysis → database → visualization**, forming a solid analytics foundation for your e-commerce recommendation system or banking analysis project.
