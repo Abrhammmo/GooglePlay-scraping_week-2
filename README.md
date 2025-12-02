@@ -128,3 +128,138 @@ CSV files containing keywords, theme clusters, and review counts.
 Visualizations for each bank showing key themes and associated keywords.
 
 Comparative insights across banks to guide strategic improvements in user experience.
+
+
+# 📌 Task 3 – Database Storage & Integration
+
+## **Overview**
+
+Task 3 focuses on storing the processed sentiment and thematic analysis results into a PostgreSQL database.
+After completing data scraping (Task 1) and thematic analysis (Task 2), this task ensures the processed outputs are structured, validated, and stored in a relational database for analytics, dashboards, or future machine-learning applications.
+
+This step involved:
+
+* Creating a PostgreSQL schema for storing review datasets
+* Preparing cleaned CSV outputs (`positive_reviews_with_themes.csv` and `negative_reviews_with_themes.csv`)
+* Writing a Python script to automatically:
+
+  * Connect to PostgreSQL
+  * Create required tables
+  * Load and insert cleaned data
+  * Prevent duplicate records using conflict handling (`ON CONFLICT DO NOTHING`)
+* Exporting the database schema into a GitHub-ready SQL dump folder
+
+---
+
+## **Pipeline Summary**
+
+### **1. Input Files**
+
+The two datasets generated from Task 2:
+
+* `positive_reviews_with_themes.csv`
+* `negative_reviews_with_themes.csv`
+
+These files include:
+
+| Column          | Description                      |
+| --------------- | -------------------------------- |
+| review_id       | Unique review identifier         |
+| bank_id         | Bank reference ID                |
+| review_text     | Raw review text                  |
+| rating          | Star rating (1–5)                |
+| review_date     | Review timestamp                 |
+| bank_name       | Bank’s name                      |
+| bank_code       | Bank identifier (e.g., CBE, BOA) |
+| source          | Data source (Google Play Store)  |
+| sentiment_label | Positive / Negative / Neutral    |
+| sentiment_score | Polarity score                   |
+| sentiment_group | Grouped sentiment category       |
+| cleaned_text    | Preprocessed review text         |
+| keywords        | Extracted keywords (TF-IDF)      |
+| theme           | Assigned theme label             |
+
+---
+
+## **2. Output Tables (Created Automatically)**
+
+The script creates:
+
+### **`positive_reviews_with_themes`**
+
+Contains all positive-sentiment thematic results
+(Themes: `positivetheme_0` → `positivetheme_3`)
+
+### **`negative_reviews_with_themes`**
+
+Contains all negative-sentiment thematic results
+(Themes: `negativetheme_0` → `negativetheme_2`)
+
+Each table is created automatically if it does not already exist.
+
+---
+
+## **3. PostgreSQL Storage Script**
+
+A standalone script (`store_reviews_postgres.py`) was created to handle:
+
+✔ Connecting to PostgreSQL
+✔ Table creation with correct schema
+✔ Reading CSV files from the `../output/` directory
+✔ Inserting all rows with conflict handling
+✔ Closing connections safely
+
+This script allows easy re-runs and clean integration in production pipelines.
+
+---
+
+## **4. Exporting the Database Schema**
+
+A `schema/` folder was created inside the repository where:
+
+* `schema.sql`
+* `bank_reviews_schema.sql`
+
+were exported using:
+
+```bash
+pg_dump -U postgres -h localhost -p 5433 -d bank_reviews -s > schema/bank_reviews_schema.sql
+```
+
+These files allow full database reconstruction on any machine.
+
+---
+
+## **5. Verification Queries**
+
+Useful SQL checks included:
+
+```sql
+SELECT COUNT(*) FROM positive_reviews_with_themes;
+SELECT COUNT(*) FROM negative_reviews_with_themes;
+
+SELECT bank_name, COUNT(*) 
+FROM positive_reviews_with_themes 
+GROUP BY bank_name;
+
+SELECT bank_name, AVG(rating)
+FROM negative_reviews_with_themes
+GROUP BY bank_name;
+```
+
+These queries verify the accuracy and consistency of the inserted data.
+
+---
+
+## **Conclusion**
+
+Task 3 successfully integrates all processed sentiment and thematic datasets into a structured PostgreSQL database.
+This creates a reliable backend foundation for:
+
+* Dashboards
+* Reporting
+* Advanced analytics
+* Recommendation system input (Final Year Project)
+
+The workflow is now production-ready and can be fully automated.
+
